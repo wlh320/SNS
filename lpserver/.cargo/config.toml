@@ -1,0 +1,3 @@
+[env]
+LIBRARY_PATH = "/home/wlh/anaconda3/envs/sns/lib"
+GUROBI_HOME = "/home/wlh/anaconda3/envs/sns"
