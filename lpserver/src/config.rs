@@ -11,6 +11,8 @@ pub struct Config {
     pub id: usize,
     #[clap(short, long, default_value = "GEANT")]
     pub toponame: String,
+    #[clap(short, long, default_value = "0")]
+    pub num_linkfail: usize,
     #[clap(short, long, default_value = "/home/wlh/coding/SNS/data/")]
     pub data_dir: PathBuf,
     #[clap(long, default_value = "24")]
@@ -33,6 +35,7 @@ impl Config {
 
 pub static TLMAP: phf::Map<&'static str, f64> = phf_map! {
     "Abilene" => 1.0,
+    "nobel" => 1.0,
     "GEANT" => 5.0,
     "germany50" => 50.0,
     "rf1755" => 300.0,

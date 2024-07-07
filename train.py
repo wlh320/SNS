@@ -48,6 +48,7 @@ class SNSTrainer:
         return reward
 
     def generate_subset(self, dataset: np.array) -> np.array:
+        # TODO: group and choice, or direct choice, are they the same?
         subset = np.random.choice(dataset, size=self.batch_size, replace=True)
         return subset
 
@@ -153,6 +154,9 @@ class SNSTrainer:
         # self.ns.agent.save_parameters(filename)
         print(f'current best model: {bestr}')
         print(f'final step model: {avgr}')
+
+        filename = f'{self.model_dir}/model-{self.toponame}-{self.method.to_model_name()}-finalstep.pkl'
+        self.ns.agent.save_parameters(filename)
 
         # tell server to quit
         self.client.send_quit_signal()

@@ -111,7 +111,7 @@ class PPOGCN:
                 self.optim.zero_grad()
                 total_loss.backward()
                 self.optim.step()
-        self.scheduler.step()
+        # self.scheduler.step()
         lr = self.scheduler.get_last_lr()
 
         print(

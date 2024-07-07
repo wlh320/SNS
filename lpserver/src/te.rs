@@ -109,9 +109,31 @@ impl TESolver {
             edges: Vec::new(),
             caps: Vec::new(),
         };
+        solver.remove_edges_randomly().unwrap();
         solver.precompute_graph_info(); // compute edge, cap info related to topology
         solver.precompute_f(); // compute f,g function related to 2-SR
         solver
+    }
+
+    /// receive failed links from client reqeust
+    fn remove_edges_randomly(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        if self.cfg.num_linkfail <= 0 {
+            // do nothing
+            return Ok(());
+        }
+
+        let ctx = zmq::Context::new();
+        let pull_sock = ctx.socket(zmq::PULL)?;
+        let id = self.cfg.id;
+        pull_sock.connect(&format!("ipc:///tmp/link_failures{id}"))?;
+
+        let msg = pull_sock.recv_bytes(0)?;
+        let failures: Vec<(usize, usize)> = serde_pickle::from_slice(&msg, Default::default())?;
+        assert_eq!(self.cfg.num_linkfail, failures.len());
+        for (s, t) in failures.into_iter() {
+            self.graph.remove_edge(s, t);
+        }
+        Ok(())
     }
 
     fn compute_ecmp_link_frac(
@@ -280,7 +302,7 @@ impl TESolver {
                 *node_load.entry(nexthop).or_insert(0.0) += next_load * ratios[&(node, nexthop)];
             }
         }
-        node_load[&j]
+        *node_load.get(&j).unwrap_or(&0.0)
     }
 
     fn revise_true_reward(

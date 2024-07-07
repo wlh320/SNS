@@ -24,7 +24,7 @@ class GCN(nn.Module):
         self.dropout = dropout
 
         self.fc = nn.Sequential(
-            nn.Linear(self.state_dim*hidden_dim, self.fc_hidden_dim),
+            nn.Linear(self.hidden_dim, self.fc_hidden_dim),
             nn.LeakyReLU(),
             nn.Linear(self.fc_hidden_dim, self.action_dim),
         )
@@ -33,7 +33,8 @@ class GCN(nn.Module):
         x, edge_index = data.x, data.edge_index
         x = self.gc1(x, edge_index)
         x = F.leaky_relu(x)
-        x = x.reshape((-1, self.state_dim*self.hidden_dim))
+        x = x.reshape((-1, self.state_dim, self.hidden_dim))
+        x = x.mean(dim=1)
         x = self.fc(x)
         return x
 
@@ -60,14 +61,14 @@ class GCN_FAN(nn.Module):
 
         # select flow
         self.fc1 = nn.Sequential(
-            init_(nn.Linear(self.state_dim*self.hidden_dim, self.fc1_hidden_dim)),
+            init_(nn.Linear(self.hidden_dim, self.fc1_hidden_dim)),
             nn.LeakyReLU(),
             init1_(nn.Linear(self.fc1_hidden_dim, self.action_dim)),
         )
 
         # select node
         self.fc2 = nn.Sequential(
-            nn.Linear(self.state_dim*self.hidden_dim, self.fc_hidden_dim),
+            nn.Linear(self.hidden_dim, self.fc_hidden_dim),
             nn.LeakyReLU(),
             nn.Linear(self.fc_hidden_dim, self.action_dim),
         )
@@ -76,7 +77,8 @@ class GCN_FAN(nn.Module):
         x, edge_index = data.x, data.edge_index
         x = self.gc1(x, edge_index)
         x = F.leaky_relu(x)
-        x = x.reshape((-1, self.state_dim*self.hidden_dim))
+        x = x.reshape((-1, self.state_dim, self.hidden_dim))
+        x = x.mean(dim=1)
         x1, x2 = self.fc1(x), self.fc2(x)
         return x1, x2
 
@@ -84,7 +86,8 @@ class GCN_FAN(nn.Module):
         x, edge_index = data.x, data.edge_index
         x = self.gc1(x, edge_index)
         x = F.leaky_relu(x)
-        x = x.reshape((-1, self.state_dim*self.hidden_dim))
+        x = x.reshape((-1, self.state_dim, self.hidden_dim))
+        x = x.mean(dim=1)
         x = self.fc1(x)
         return x
 
@@ -92,6 +95,7 @@ class GCN_FAN(nn.Module):
         x, edge_index = data.x, data.edge_index
         x = self.gc1(x, edge_index)
         x = F.leaky_relu(x)
-        x = x.reshape((-1, self.state_dim*self.hidden_dim))
+        x = x.reshape((-1, self.state_dim, self.hidden_dim))
+        x = x.mean(dim=1)
         x = self.fc2(x)
         return x

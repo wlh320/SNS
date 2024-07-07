@@ -6,13 +6,13 @@ from tqdm import tqdm
 import subprocess
 import time
 
-from sr import Traffic
+from sr import Traffic, Topology
 from ns import NodeSelector
 
 logging.basicConfig(level="DEBUG")
 logger = logging.getLogger(__name__)
 
-CD_METHODS = set(['opt', 'rand', 'sp', 'deg', 'str', 'sns', 'fan', 'snsc'])
+CD_METHODS = set(['opt', 'rand', 'sp', 'gsp', 'deg', 'str', 'sns', 'fan', 'snsc', 'mll'])
 
 
 class Method:
@@ -60,7 +60,7 @@ class LPClient:
     """
 
     def __init__(self, toponame: str, num_agents: int, id=1, data_dir="./data/",
-                 seed=1024, tl=None):
+                 seed=1024, tl=None, num_linkfail=0):
         self.id = id
         self.toponame = toponame
         self.data_dir = data_dir
@@ -71,6 +71,7 @@ class LPClient:
         self.push_sock = None  # send task to lpserver
         self.pull_sock = None  # recv result from lpserver
         self.tl = tl
+        self.num_linkfail = num_linkfail
 
         self.method = None
 
@@ -209,13 +210,14 @@ class LPClient:
 
     def start_server(self, logfile=None):
         """start lpserver"""
-        binpath = '/home/wlh/coding/SNS/lpserver/target/release/lpserver'
+        binpath = '/home/wlh/coding/SNS2024/lpserver/target/release/lpserver'
         # prepare arguments
         stdout = subprocess.DEVNULL if logfile is None else open(logfile, 'w')
         tl = '' if self.tl is None else f'--time-limit={self.tl}'
+        linkfail = '' if self.num_linkfail == 0 else f'--num-linkfail={self.num_linkfail}'
         # start subprocess
         cmd = [f'{binpath}', f'--id={self.id}', f'--data-dir={self.data_dir}',
-               f'--toponame={self.toponame}', f'--num-agents={self.num_agents}', tl]
+               f'--toponame={self.toponame}', f'--num-agents={self.num_agents}', tl, linkfail]
         cmd = ' '.join(cmd).strip().split()
         print(f'lpserver: {" ".join(cmd)}')
         subprocess.Popen(cmd, env=None, shell=False,

@@ -10,14 +10,7 @@ from ns import NodeSelector
 
 def init_ns(toponame: str, method: Method, data_dir: str, model_dir: str, alpha: float) -> NodeSelector:
     ns = NodeSelector(toponame, model_dir=model_dir, data_dir=data_dir, alpha=alpha)
-    if method.cd_method in ["snsc"]:
-        # fake_method = deepcopy(method)
-        # fake_method.cd_method = "fan"
-        # ns.drl_init(fake_method)
-        # model_name = f'model-{ns.toponame}-{fake_method.to_model_name()}.pkl'
-        # ns.drl_load_model(model_name)
-        pass
-    elif method.cd_method in ["sns", "fan"]:
+    if method.cd_method in ["sns", "fan"]:
         ns.drl_init(method)
         model_name = f'model-{ns.toponame}-{method.to_model_name()}.pkl'
         ns.drl_load_model(model_name)
@@ -37,7 +30,7 @@ def run(client: LPClient, method: Method, ns: NodeSelector):
 
 
 def test(toponame, cd_method, lp_kind, obj_kind, num_inodes, num_tnodes=None, 
-         num_agents=20, id=1, seed=1024, tl=None, save=True, alpha=1.2,
+         num_agents=20, id=1, seed=1024, tl=None, save=True, alpha=1.3,
          result_dir="./result/", data_dir="./data/", model_dir='./model/'):
     method = Method(cd_method, num_inodes, num_tnodes, lp_kind, obj_kind)
     client = LPClient(toponame=toponame, num_agents=num_agents, data_dir=data_dir,

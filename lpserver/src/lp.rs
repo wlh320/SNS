@@ -132,6 +132,7 @@ pub fn solve(
         ObjKind::MLU => obj,
         ObjKind::MT => obj / (demands.iter().sum::<f64>() + f64::EPSILON),
     };
+    // TODO: get number of SR policies
     let policies = action.iter().map(|(&f, rates)| {
         let (src, dst) = flows[f];
         rates.iter().enumerate().filter(|(cd, v)| {

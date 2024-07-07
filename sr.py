@@ -1,6 +1,7 @@
 import math
 
 import networkx as nx
+import networkit as nk
 import pickle
 import numpy as np
 
@@ -23,6 +24,22 @@ class Topology(object):
             print(f'failed to load topology {self.name}')
             print(e)
         return G
+    
+    def load_networkit(self, num_nodes):
+        GG = nk.Graph(n=num_nodes, weighted=True, directed=False)
+        try:
+            filename = f'{self.data_dir}/{self.name}'
+            with open(filename, 'r') as f:
+                for line in f.readlines():
+                    line = line.split()[:4]
+                    src, dst, weight, cap = list(map(int, line))
+                    GG.addEdge(src, dst, w=weight)
+        except Exception as e:
+            print(f'failed to load topology {self.name}')
+            print(e)
+        # nk.overview(GG)
+        return GG
+
 
 
 class Traffic(object):
